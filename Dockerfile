@@ -28,6 +28,9 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     ripgrep \
+    fish \
+    pkg-config \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
@@ -39,7 +42,7 @@ RUN mkdir neovim
 COPY ./nvim-linux64.tar.gz ./source/neovim
 RUN tar -zxvf ./source/neovim/nvim-linux64.tar.gz -C ./source/neovim
 RUN chmod +x ./source/neovim/nvim-linux64/bin/nvim
-RUN echo 'export PATH="$PATH:/root/source/neovim/nvim-linux64/bin"' >> /root/.bashrc
+RUN echo 'export PATH=$PATH:/root/source/neovim/nvim-linux64/bin' >> /root/.bashrc
 
 #python
 # yaml 格式化
@@ -55,6 +58,7 @@ RUN mkdir ./source/golang
 COPY ./$GOPACK ./source/golang/
 RUN tar -zxvf ./source/golang/$GOPACK -C /usr/local/
 # RUN mv ./source/golang/go /usr/local/
+RUN echo 'export PATH=$PATH:/usr/local/go/bin' >> /root/.bashrc
 RUN echo "export GO111MODULE=on" >> /root/.bashrc
 RUN echo "export GOPROXY=https://goproxy.cn" >> /root/.bashrc
 # RUN source /root/.bashrc
