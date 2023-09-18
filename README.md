@@ -7,3 +7,7 @@ docker build -t lazyvim:0.0.4 -f ./Dockerfile .
 docker run -it -d -v D:/:/mnt/d/ -v E:/:/mnt/e/ --name lazyvim lazyvim:0.0.4
 docker run -it -d -v D:/:/mnt/d/ --name lazyvim lazyvim:0.0.4
 docker exec -it lazyvim /bin/bash
+
+docker tag lazyvim:0.0.4 1045683477/lazyvim:0.0.4
+
+7z a local.7z .local
