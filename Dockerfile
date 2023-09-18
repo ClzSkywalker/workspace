@@ -5,7 +5,7 @@ ENV GOPACK_NAME go1.21.1.linux-amd64.tar.gz
 ENV LAZYGIT source/lazygit_0.40.2_Linux_x86_64.tar.gz
 ENV LAZYGIT_NAME lazygit_0.40.2_Linux_x86_64.tar.gz
 ENV NVIM_PATH ./source/nvim-linux64.tar.gz
-ENV LOCAL_PACK_PATH ./source/local.7z
+# ENV LOCAL_PACK_PATH ./source/local.7z
 ENV CARGO_CONFIG ./config/config
 ENV RUST_INI_SH ./config/rustup-init.sh
 
@@ -92,18 +92,19 @@ RUN npm install -g -y fd-find
 # 安装rust
 RUN mkdir ./source/rust
 COPY $RUST_INI_SH ./source/rust
+COPY $CARGO_CONFIG /root/.cargo/config
 RUN echo 'export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static' >> /root/.bashrc
 # RUN curl https://sh.rustup.rs -sSf  | sh 
+RUN curl -o ./source/rust/rustup-init.sh https://sh.rustup.rs
 RUN sh ./source/rust/rustup-init.sh -y
-COPY $CARGO_CONFIG /root/.cargo/config
 RUN source /root/.cargo/env
 
 # 下载Nv
 RUN mkdir .config
-RUN git clone https://github.com/ClzSkywalker/Nv.git /root/.config/nvim
+RUN git clone https://github.com/ClzSkywalker/starter.git /root/.config/nvim
 # 迁移 Nv 所需要依赖包
-COPY $LOCAL_PACK_PATH /root/source/
-RUN 7z x /root/source/local.7z -o/root/
+# COPY $LOCAL_PACK_PATH /root/source/
+# RUN 7z x /root/source/local.7z -o/root/
 
 RUN source /root/.bashrc
 
