@@ -7,7 +7,7 @@ ENV LAZYGIT_NAME lazygit_0.40.2_Linux_x86_64.tar.gz
 ENV NVIM_PATH ./source/nvim-linux64.tar.gz
 ENV LOCAL_PACK_PATH ./source/local.7z
 ENV CARGO_CONFIG ./config/config
-ENV RUST_INI_SH ./config/rustup-init.sh
+# ENV RUST_INI_SH ./config/rustup-init.sh
 
 WORKDIR /root
 RUN cd /root/
@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install -y \
     fish \
     pkg-config \
     libssl-dev \
+    protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
@@ -91,13 +92,16 @@ RUN npm install -g -y fd-find
 
 # 安装rust
 RUN mkdir ./source/rust
-COPY $RUST_INI_SH ./source/rust
+# COPY $RUST_INI_SH ./source/rust
 COPY $CARGO_CONFIG /root/.cargo/config
 RUN echo 'export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static' >> /root/.bashrc
 # RUN curl https://sh.rustup.rs -sSf  | sh 
 RUN curl -o ./source/rust/rustup-init.sh https://sh.rustup.rs
 RUN sh ./source/rust/rustup-init.sh -y
 RUN source /root/.cargo/env
+# 安装cargo nextest 测试工具
+RUN curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+
 
 # 下载Nv
 RUN mkdir .config
