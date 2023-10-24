@@ -6,6 +6,8 @@ ENV LAZYGIT source/lazygit_0.40.2_Linux_x86_64.tar.gz
 ENV LAZYGIT_NAME lazygit_0.40.2_Linux_x86_64.tar.gz
 ENV NVIM_PATH ./source/nvim-linux64.tar.gz
 ENV LOCAL_PACK_PATH ./source/local.7z
+ENV FLUTTER_PATH ./source/flutter_linux_3.13.8-stable.tar.xz
+ENV FLUTTER_NAME flutter_linux_3.13.8-stable.tar.xz
 ENV CARGO_CONFIG ./config/config
 # ENV RUST_INI_SH ./config/rustup-init.sh
 
@@ -27,18 +29,37 @@ RUN apt-get update && apt-get install -y \
     git \
     vim \
     wget \
-    tar \
+    snapd \
+    # docker
     ca-certificates \
     gnupg \
+    # 压缩包工具
     zip \
+    tar \
     p7zip-full \
+    # python环境
     python3 \
     python3-pip \
+    # 搜索工具
     ripgrep \
     fish \
     pkg-config \
     libssl-dev \
+    # protobuf 工具
     protobuf-compiler \
+    libprotobuf-dev \
+    # bevy 配置
+    g++ \
+    libx11-dev \
+    libasound2-dev \
+    libudev-dev \
+    lld \
+    # flutter
+    cmake \
+    xz-utils \
+    ninja-build \
+    # ibgtk-3-dev \
+    liblzma-dev \
     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
@@ -69,7 +90,9 @@ RUN tar -zxvf ./source/golang/$GOPACK_NAME -C /usr/local/
 RUN echo 'export PATH=$PATH:/usr/local/go/bin' >> /root/.bashrc
 RUN echo "export GO111MODULE=on" >> /root/.bashrc
 RUN echo "export GOPROXY=https://goproxy.cn" >> /root/.bashrc
-# RUN source /root/.bashrc
+RUN source /root/.bashrc
+# protobuf lsp 安装
+RUN /usr/local/go/bin/go install github.com/bufbuild/buf-language-server/cmd/bufls@latest
 
 # 安装lazygit
 COPY ./$LAZYGIT ./source/golang/
@@ -102,9 +125,16 @@ RUN source /root/.cargo/env
 # 安装cargo nextest 测试工具
 RUN curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
 
+# 安装flutter
+COPY $FLUTTER_PATH ./source/
+RUN tar xf $FLUTTER_PATH
+# RUN mv ./source/flutter ~/
+RUN git config --global --add safe.directory /root/flutter
+RUN /root/flutter/bin/flutter precache
+
 
 # 下载Nv
-RUN mkdir .config
+# RUN mkdir .config
 RUN git clone https://github.com/ClzSkywalker/starter.git /root/.config/nvim
 # 迁移 Nv 所需要依赖包
 COPY $LOCAL_PACK_PATH /root/source/
