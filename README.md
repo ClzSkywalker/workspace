@@ -10,14 +10,17 @@ lazygit: https://github.com/jesseduffield/lazygit/releases
 local: lazygit库，docker镜像中取出
 nvim-linux：https://github.com/neovim/neovim/wiki/Installing-Neovim
 
-docker build -t lazyvim:0.1.0 -f ./Dockerfile .
-docker run -it -d -v D:/:/mnt/d/ -v E:/:/mnt/e/ --name lazyvim lazyvim:0.1.0
-docker run -it -d -p 8008:8007 -v C:/:/mnt/c/ -v D:/:/mnt/d/ --name lazyvim lazyvim:0.1.0
+docker build -t lazyvim:0.1.2 -f ./Dockerfile .
+docker run -it -d -v D:/:/mnt/d/ -v E:/:/mnt/e/ --name lazyvim lazyvim:0.1.2
+docker run -it -d -p 8008:8007 -v C:/:/mnt/c/ -v D:/:/mnt/d/ --name lazyvim lazyvim:0.1.2
 docker exec -it lazyvim /bin/bash
 
 
-docker tag lazyvim:0.1.0 1045683477/lazyvim:0.1.0
-docker push 1045683477/lazyvim:0.1.0
+docker tag lazyvim:0.1.2 1045683477/lazyvim:0.1.2
+docker push 1045683477/lazyvim:0.1.2
 
 7z a local.7z .local
 docker cp lazyvim:/root/local.7z ./source/
+
+docker rmi lazyvim:0.0.9
+docker rmi 1045683477/lazyvim:0.0.9

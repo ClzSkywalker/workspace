@@ -1,15 +1,12 @@
 FROM ubuntu:23.10
 
-ENV GOPACK source/go1.21.1.linux-amd64.tar.gz
-ENV GOPACK_NAME go1.21.1.linux-amd64.tar.gz
-ENV LAZYGIT source/lazygit_0.40.2_Linux_x86_64.tar.gz
-ENV LAZYGIT_NAME lazygit_0.40.2_Linux_x86_64.tar.gz
-ENV NVIM_PATH ./source/nvim-linux64.tar.gz
-ENV LOCAL_PACK_PATH ./source/local.7z
-ENV FLUTTER_PATH ./source/flutter_linux_3.13.8-stable.tar.xz
+ENV INSTALL_PATH ./install_pack
+ENV SOURCE_PATH /root/install_pack/source
+ENV CONFIG_PATH /root/install_pack/config
+
+ENV NVIM_NAME nvim-linux64-v0.9.4.tar.gz
+ENV GOPACK_NAME go1.21.3.linux-amd64.tar.gz
 ENV FLUTTER_NAME flutter_linux_3.13.8-stable.tar.xz
-ENV CARGO_CONFIG ./config/config
-# ENV RUST_INI_SH ./config/rustup-init.sh
 
 WORKDIR /root
 RUN cd /root/
@@ -63,15 +60,18 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
-RUN mkdir source
+COPY $INSTALL_PATH /root/install_pack
 
 # 安装neovim
-RUN mkdir -p source/neovim
-RUN mkdir neovim
-COPY $NVIM_PATH ./source/neovim
-RUN tar -zxvf ./source/neovim/nvim-linux64.tar.gz -C ./source/neovim
-RUN chmod +x ./source/neovim/nvim-linux64/bin/nvim
-RUN echo 'export PATH=$PATH:/root/source/neovim/nvim-linux64/bin' >> /root/.bashrc
+RUN tar -zxvf ${SOURCE_PATH}/${NVIM_NAME} -C /opt/
+RUN chmod +x /opt/nvim-linux64/bin/nvim
+RUN echo 'export PATH=$PATH:/opt/nvim-linux64/bin' >> /root/.bashrc
+
+# 安装flutter
+RUN tar -xf ${SOURCE_PATH}/${FLUTTER_NAME} -C /opt/ 
+RUN git config --global --add safe.directory /opt/flutter
+RUN /opt/flutter/bin/flutter precache
+RUN echo 'export PATH=$PATH:/opt/flutter/bin' >> /root/.bashrc
 
 #python
 # yaml 格式化
@@ -83,22 +83,15 @@ RUN echo 'export PATH=$PATH:/root/source/neovim/nvim-linux64/bin' >> /root/.bash
 # RUN apt install ripgrep -y
 
 # 安装go 
-RUN mkdir ./source/golang
-COPY ./$GOPACK ./source/golang/
-RUN tar -zxvf ./source/golang/$GOPACK_NAME -C /usr/local/
-# RUN mv ./source/golang/go /usr/local/
-RUN echo 'export PATH=$PATH:/usr/local/go/bin' >> /root/.bashrc
+RUN tar -zxvf ${SOURCE_PATH}/$GOPACK_NAME -C /opt/
+RUN echo 'export PATH=$PATH:/opt/go/bin' >> /root/.bashrc
 RUN echo "export GO111MODULE=on" >> /root/.bashrc
 RUN echo "export GOPROXY=https://goproxy.cn" >> /root/.bashrc
-RUN source /root/.bashrc
-# protobuf lsp 安装
-RUN /usr/local/go/bin/go install github.com/bufbuild/buf-language-server/cmd/bufls@latest
-
+# 安装 protobuf lsp 
+RUN /opt/go/bin/go install github.com/bufbuild/buf-language-server/cmd/bufls@latest
 # 安装lazygit
-COPY ./$LAZYGIT ./source/golang/
-RUN mkdir -p ./source/golang/lazygit
-RUN tar -zxvf ./source/golang/$LAZYGIT_NAME -C ./source/golang/lazygit/
-RUN install ./source/golang/lazygit/lazygit /usr/local/bin
+RUN /opt/go/bin/go install github.com/jesseduffield/lazygit@latest
+
 
 # 安装node https://deb.nodesource.com/
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
@@ -114,31 +107,19 @@ RUN npm install -g -y fd-find
 # RUN npm install -y --save-dev --save-exact prettier
 
 # 安装rust
-RUN mkdir ./source/rust
-# COPY $RUST_INI_SH ./source/rust
-COPY $CARGO_CONFIG /root/.cargo/config
+RUN mkdir /root/.cargo
+RUN cp ${CONFIG_PATH}/config /root/.cargo/config
 RUN echo 'export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static' >> /root/.bashrc
-# RUN curl https://sh.rustup.rs -sSf  | sh 
-RUN curl -o ./source/rust/rustup-init.sh https://sh.rustup.rs
-RUN sh ./source/rust/rustup-init.sh -y
+RUN curl -o ${CONFIG_PATH}/rustup-init.sh https://sh.rustup.rs
+RUN sh ${CONFIG_PATH}/rustup-init.sh -y
 RUN source /root/.cargo/env
 # 安装cargo nextest 测试工具
 RUN curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
 
-# 安装flutter
-COPY $FLUTTER_PATH ./source/
-RUN tar xf $FLUTTER_PATH
-# RUN mv ./source/flutter ~/
-RUN git config --global --add safe.directory /root/flutter
-RUN /root/flutter/bin/flutter precache
 
-
-# 下载Nv
-# RUN mkdir .config
+# 下载nvim配置以及依赖包
 RUN git clone https://github.com/ClzSkywalker/starter.git /root/.config/nvim
-# 迁移 Nv 所需要依赖包
-COPY $LOCAL_PACK_PATH /root/source/
-RUN 7z x /root/source/local.7z -o/root/
+RUN 7z x ${SOURCE_PATH}/local.7z -o/root/
 
 RUN source /root/.bashrc
 
