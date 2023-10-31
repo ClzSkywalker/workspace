@@ -1,5 +1,10 @@
 FROM ubuntu:23.10
 
+# 宿主机ip
+ENV PC_HOST 0.0.0.0 
+# ubuntu root 密码
+ENV PWD root
+
 ENV INSTALL_PATH ./install_pack
 ENV SOURCE_PATH /root/install_pack/source
 ENV CONFIG_PATH /root/install_pack/config
@@ -22,11 +27,17 @@ ENV LANG en_US.utf8
 RUN apt-get update && apt-get install -y \
     bash \
     build-essential \
+    gcc-multilib \
     curl \
     git \
     vim \
     wget \
     snapd \
+    tzdata \
+    cmake \
+    libopencv-dev \
+    libglu1-mesa-dev \
+    freeglut3-dev \
     # docker
     ca-certificates \
     gnupg \
@@ -52,11 +63,22 @@ RUN apt-get update && apt-get install -y \
     libudev-dev \
     lld \
     # flutter
-    cmake \
     xz-utils \
     ninja-build \
-    # ibgtk-3-dev \
+    clang \
+    libgtk-3-dev \
     liblzma-dev \
+    build-essential \
+    # 界面
+    xorg \
+    # openbox \
+    # xfce4 \
+    # xfce4-goodies \
+    # 网络工具
+    openssh-server \
+    net-tools \
+    software-properties-common  \
+    apt-transport-https  \
     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-c"]
@@ -70,21 +92,13 @@ RUN echo 'export PATH=$PATH:/opt/nvim-linux64/bin' >> /root/.bashrc
 # 安装flutter
 RUN tar -xf ${SOURCE_PATH}/${FLUTTER_NAME} -C /opt/ 
 RUN git config --global --add safe.directory /opt/flutter
-RUN /opt/flutter/bin/flutter precache
 RUN echo 'export PATH=$PATH:/opt/flutter/bin' >> /root/.bashrc
-
-#python
-# yaml 格式化
-# RUN pip3 install pyyaml -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-# 文件搜索
-# RUN add-apt-repository ppa:x4121/ripgrep
-# RUN apt update
-# RUN apt install ripgrep -y
+RUN /opt/flutter/bin/flutter precache
 
 # 安装go 
 RUN tar -zxvf ${SOURCE_PATH}/$GOPACK_NAME -C /opt/
 RUN echo 'export PATH=$PATH:/opt/go/bin' >> /root/.bashrc
+RUN echo 'export PATH=$PATH:/root/go/bin' >> /root/.bashrc
 RUN echo "export GO111MODULE=on" >> /root/.bashrc
 RUN echo "export GOPROXY=https://goproxy.cn" >> /root/.bashrc
 # 安装 protobuf lsp 
@@ -121,7 +135,8 @@ RUN curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/
 RUN git clone https://github.com/ClzSkywalker/starter.git /root/.config/nvim
 RUN 7z x ${SOURCE_PATH}/local.7z -o/root/
 
-RUN source /root/.bashrc
+# 设置ssh网络
+RUN echo "Port 22" >> /etc/ssh/sshd_config
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-
-CMD [ "bash" ]
+CMD ["/bin/sh", "-c", "${CONFIG_PATH}/init.sh && tail -f /dev/null"]
