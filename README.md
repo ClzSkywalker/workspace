@@ -15,13 +15,13 @@ https://mobaxterm.mobatek.net/download-home-edition.html
 
 
 
-docker build -t lazyvim:0.1.4 -f ./Dockerfile .
-docker run -it -d -e pchost="0.0.0.0" -p 50002:22 -v D:/:/mnt/d/ -v C:/:/mnt/c/ -v D:/:/mnt/d/ -v E:/:/mnt/e/ --name lazyvim lazyvim:0.1.4
-docker run -it -d -e PC_HOST="192.168.0.60" -p 8008:8007 -p 50002:22 -v C:/:/mnt/c/ -v D:/:/mnt/d/  --name lazyvim lazyvim:0.1.4
+docker build -t lazyvim:0.1.5 -f ./Dockerfile .
+docker run -it -d -e pchost="0.0.0.0" -p 50002:22 -v D:/:/mnt/d/ -v C:/:/mnt/c/ -v D:/:/mnt/d/ -v E:/:/mnt/e/ --name lazyvim lazyvim:0.1.5
+docker run -it -d -e PC_HOST="192.168.0.60" -p 8008:8007 -p 50002:22 -v C:/:/mnt/c/ -v D:/:/mnt/d/  --name lazyvim lazyvim:0.1.5
 docker exec -it lazyvim /bin/bash
 
-docker tag lazyvim:0.1.4 1045683477/lazyvim:0.1.4
-docker push 1045683477/lazyvim:0.1.4
+docker tag lazyvim:0.1.5 1045683477/lazyvim:0.1.5
+docker push 1045683477/lazyvim:0.1.5
 
 7z a local.7z .local
 docker cp lazyvim:/root/local.7z ./install_pack/source/
