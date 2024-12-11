@@ -25,3 +25,29 @@ docker push 1045683477/lazyvim:0.1.5
 
 7z a local.7z .local
 docker cp lazyvim:/root/local.7z ./install_pack/source/
+
+
+docker json
+```json
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "registry-mirrors": [
+    "https://docker.hpcloud.cloud",
+    "https://docker.m.daocloud.io",
+    "https://docker.unsee.tech",
+    "https://docker.1panel.live",
+    "http://mirrors.ustc.edu.cn",
+    "https://docker.chenby.cn",
+    "http://mirror.azure.cn",
+    "https://dockerpull.org",
+    "https://dockerhub.icu",
+    "https://hub.rat.dev"
+  ]
+}
+```
