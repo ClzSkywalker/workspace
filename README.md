@@ -16,8 +16,10 @@ https://mobaxterm.mobatek.net/download-home-edition.html
 
 
 docker build -t lazyvim:0.1.5 -f ./Dockerfile .
+docker build -t workspace:0.0.1 -f ./Dockerfile2 .
 docker run -it -d -e pchost="0.0.0.0" -p 50002:22 -v D:/:/mnt/d/ -v C:/:/mnt/c/ -v D:/:/mnt/d/ -v E:/:/mnt/e/ --name lazyvim lazyvim:0.1.5
 docker run -it -d -e PC_HOST="192.168.0.60" -p 8008:8007 -p 50002:22 -v C:/:/mnt/c/ -v D:/:/mnt/d/  --name lazyvim lazyvim:0.1.5
+docker run -it -d -e PC_HOST="0.0.0.0" -p 8008:8007 -p 50002:22 -v /Users/sky/Documents/project:/mnt/c/  --name workspace workspace:0.0.1
 docker exec -it lazyvim /bin/bash
 
 docker tag lazyvim:0.1.5 1045683477/lazyvim:0.1.5
@@ -38,6 +40,27 @@ docker json
   },
   "experimental": false,
   "registry-mirrors": [
+    "https://dockerpull.org",
+    "https://hub.geekery.cn",
+    "https://docker.1ms.run",
+    "https://docker.1panel.dev",
+    "https://docker.foreverlink.love",
+    "https://docker.fxxk.dedyn.io",
+    "https://docker.zhai.cm",
+    "https://hub.docker.com"
+  ]
+}
+
+
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "registry-mirrors": [
     "https://docker.hpcloud.cloud",
     "https://docker.m.daocloud.io",
     "https://docker.unsee.tech",
@@ -47,7 +70,10 @@ docker json
     "http://mirror.azure.cn",
     "https://dockerpull.org",
     "https://dockerhub.icu",
-    "https://hub.rat.dev"
+    "https://hub.rat.dev",
+    "https://docker.1ms.run",
+    "https://dockerpull.org"
+    "https://hub.docker.com",
   ]
 }
 ```
